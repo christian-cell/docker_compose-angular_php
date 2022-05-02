@@ -1,0 +1,49 @@
+version: "3"
+services:
+  server:
+    container_name: server
+    image: christianphp/my-php:1.0
+    ports:
+      - '8080:80'
+    restart: unless-stopped
+    links:
+      - "db"
+    volumes:
+      - ./backend/website:/var/www/html/
+  db:
+    container_name: db
+    image: mysql:8.0.27
+    ports:
+      - '5506:3306'
+    restart: unless-stopped
+    environment:
+      MYSQL_USER: christian
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_PASSWORD: secret
+    volumes:
+      - ./backend/dump:/var/lib/mysql
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin:5.1.1
+    restart: 'always'
+    ports:
+      - '8087:80'
+    environment:
+      - PMA_HOST=db
+      - PMA_PASSWORD:secret
+    depends_on:
+      - db
+    links:
+      - db
+  frontend:
+      image: christianphp/dockerangular:1.0.0
+      container_name: angular_node
+      ports:
+          - 8100:4200
+      volumes:
+          - "./app/node_modules"
+          - "./dockerangular:/app"
+      #tty: true
+volumes:
+  dump:
+  
